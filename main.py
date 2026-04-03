@@ -57,9 +57,38 @@ def log_rates(data):
         
         print(f"Rates logged to rates.csv")
     
+def check_alerts(data):
+    rates = data["rates"]
+    
+    alerts = {
+        "JPY": {"threshold" : 115, "direction": "above"},
+        "EUR": {"threshold" : 0.60, "direction": "below"},
+        "USD": {"threshold" : 0.70, "direction": "below"}
+    }
+    
+    print("Checking alerts...")
+    triggered = False
+    
+    for currency, config in alerts.items():
+        rate = rates.get(currency)
+        if rate is None:
+            continue
+        
+        if config["direction"] == "above" and rate > config["threshold"]:
+            print(f"⚠️  ALERT: CAD → {currency} is {rate} (above {config['threshold']})")
+            triggered = True
+        elif config["direction"] == "below" and rate < config["threshold"]:
+            print(f"  ⚠️  ALERT: CAD → {currency} is {rate} (below {config['threshold']})")
+            triggered = True
+    
+    if not triggered:
+        print("No alerts triggered.")
+        
+    print()
 
 if __name__ == "__main__":
     print(f"Fetching rates at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     data = get_exchange_rate()
     display_rates(data)
     log_rates(data)
+    check_alerts(data)
