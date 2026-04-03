@@ -85,10 +85,52 @@ def check_alerts(data):
         print("No alerts triggered.")
         
     print()
+    
 
+def plot_rates():
+    if not os.path.exists(rates.csv):
+        print("No rates to plot.")
+        return
+    
+    dates = []
+    jpy_rates = []
+    eur_rates = []
+    usd_rates = []
+    
+    with open("rates.csv", "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            dates.append(row["date"])
+            py_rates.append(float(row["CAD_to_JPY"]))
+            eur_rates.append(float(row["CAD_to_EUR"]))
+            usd_rates.append(float(row["CAD_to_USD"]))
+    
+    import matplotlib.pyplot as plt
+
+    fig, axes = plt.subplots(3, 1, figsize=(10, 8))
+    fig.suptitle("CAD Exchange Rates Over Time")
+
+    axes[0].plot(dates, jpy_rates, marker="o", color="red")
+    axes[0].set_title("CAD → JPY")
+    axes[0].tick_params(axis="x", rotation=45)
+
+    axes[1].plot(dates, usd_rates, marker="o", color="blue")
+    axes[1].set_title("CAD → USD / BSD")
+    axes[1].tick_params(axis="x", rotation=45)
+
+    axes[2].plot(dates, eur_rates, marker="o", color="green")
+    axes[2].set_title("CAD → EUR")
+    axes[2].tick_params(axis="x", rotation=45)
+
+    plt.tight_layout()
+    plt.savefig("rates_chart.png")
+    print("Chart saved to rates_chart.png")
+    plt.show()
+    
 if __name__ == "__main__":
     print(f"Fetching rates at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     data = get_exchange_rate()
     display_rates(data)
     log_rates(data)
     check_alerts(data)
+    plot_rates()
