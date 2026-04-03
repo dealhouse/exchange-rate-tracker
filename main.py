@@ -1,5 +1,8 @@
 import requests
 from datetime import datetime
+import os
+import csv
+
 
 BASE_URL = "https://api.frankfurter.app"
 BASE_CURRENCY = "CAD"
@@ -31,8 +34,32 @@ def display_rates(data):
         
     print()
     
+def log_rates(data):
+    date = data["date"]
+    rates = data["rates"]
+    
+    file_exists = os.path.exists("rates.csv")
+    
+    with open("rates.csv", "a", newline="") as f:
+        fieldnames = ["date", "CAD_to_JPY", "CAD_to_EUR", "CAD_to_USD", "CAD_to_BSD"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        
+        if not file_exists:
+            writer.writeheader()
+            
+        writer.writerow({
+            "date": date,
+            "CAD_to_JPY": rates["JPY"],
+            "CAD_to_EUR": rates["EUR"],
+            "CAD_to_USD": rates["USD"],
+            "CAD_to_BSD": rates["USD"]
+        })
+        
+        print(f"Rates logged to rates.csv")
+    
 
 if __name__ == "__main__":
     print(f"Fetching rates at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     data = get_exchange_rate()
     display_rates(data)
+    log_rates(data)
